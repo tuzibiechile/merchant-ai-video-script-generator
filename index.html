@@ -1,236 +1,420 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Merchant AI Video Script Generator</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    :root { color-scheme: light; }
-    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    .glass { background: rgba(255,255,255,0.78); backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,0.65); }
-    .gradient-text { background: linear-gradient(90deg, #7c3aed, #ec4899, #f97316); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .card-shadow { box-shadow: 0 24px 80px rgba(76, 29, 149, 0.16); }
-    textarea, input, select { outline: none; }
-    .template-card pre { white-space: pre-wrap; word-break: break-word; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>即梦短视频脚本生成器 | 商家版</title>
+<style>
+  :root{ --tt-black:#000; --tt-red:#FE2C55; --tt-cyan:#25F4EE; --bg:#f4f4f5; --card:#fff; --line:#ececec; --txt:#161823; --sub:#8a8b91; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--txt);}
+
+  /* ===== Top hero ===== */
+  .hero{background:linear-gradient(135deg,#161823 0%,#2a0a14 100%);color:#fff;padding:30px 16px 26px;}
+  .hero .inner{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .logo{width:46px;height:46px;border-radius:12px;background:var(--tt-black);position:relative;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.08);}
+  .logo::before{content:"\266A";color:var(--tt-cyan);position:absolute;font-size:28px;left:10px;top:5px;text-shadow:2.5px 0 var(--tt-red);}
+  .hero h1{font-size:22px;font-weight:800;letter-spacing:-.3px;}
+  .hero .tag{font-size:12px;color:#fff;background:var(--tt-red);padding:3px 10px;border-radius:20px;font-weight:700;}
+  .hero p{font-size:13px;color:#c9c9cf;margin:10px 0 0;width:100%;line-height:1.6;}
+
+  /* ===== App body ===== */
+  #app{padding:24px 16px 110px;}
+  .wrap{max-width:880px;margin:0 auto;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .sec-title{font-size:15px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+  .sec-title .n{width:22px;height:22px;border-radius:50%;background:var(--tt-black);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:700;flex:none;}
+  .sec-title .req{color:var(--tt-red);font-size:12px;}
+  .sec-title .opt{color:var(--sub);font-size:12px;font-weight:500;}
+  .sec-desc{font-size:12px;color:var(--sub);margin:0 0 14px 30px;line-height:1.5;}
+
+  input,select,textarea{font-family:inherit;font-size:13px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;outline:none;width:100%;background:#fff;color:var(--txt);}
+  input:focus,select:focus,textarea:focus{border-color:var(--tt-black);}
+  textarea{resize:vertical;min-height:64px;line-height:1.5;}
+  .lbl{font-size:12px;color:var(--sub);margin-bottom:5px;font-weight:600;}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:560px){.row{grid-template-columns:1fr;}}
+  .field{margin-bottom:12px;}
+  .field:last-child{margin-bottom:0;}
+
+  .cat-wrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .cat-wrap input{flex:1;min-width:200px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  .chip{padding:6px 12px;border-radius:18px;background:#f0f0f1;font-size:12px;cursor:pointer;border:1.5px solid transparent;user-select:none;font-weight:600;}
+  .chip:hover{border-color:#ccc;}
+  .chip.sel{background:var(--tt-black);color:#fff;}
+
+  .opt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .opt{border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;cursor:pointer;transition:.15s;background:#fff;}
+  .opt:hover{border-color:#ccc;transform:translateY(-1px);}
+  .opt.sel{border-color:var(--tt-red);background:#fff4f6;box-shadow:0 0 0 3px rgba(254,44,85,.08);}
+  .opt .t{font-weight:700;font-size:13px;}
+  .opt .d{font-size:11px;color:var(--sub);margin-top:3px;line-height:1.35;}
+
+  .num-pick{display:flex;gap:6px;flex-wrap:wrap;}
+  .num{min-width:42px;height:38px;padding:0 10px;border-radius:10px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer;font-size:13px;background:#fff;}
+  .num.sel{background:var(--tt-black);color:#fff;border-color:var(--tt-black);}
+
+  /* ===== Generate bar ===== */
+  .gen-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:14px 16px;display:flex;justify-content:center;gap:12px;z-index:50;box-shadow:0 -2px 12px rgba(0,0,0,.05);}
+  .btn{padding:13px 30px;border-radius:30px;border:none;font-size:15px;font-weight:800;cursor:pointer;}
+  .btn-primary{background:var(--tt-red);color:#fff;} .btn-primary:disabled{background:#f0a8b6;cursor:not-allowed;}
+  .btn-ghost{background:#f0f0f1;color:var(--txt);}
+
+  /* ===== Output ===== */
+  #out{margin-top:4px;}
+  .out-empty{font-size:13px;color:var(--sub);font-style:italic;text-align:center;padding:18px;}
+  .vbox{border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;background:#fafafa;}
+  .vhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap;}
+  .vt{font-weight:800;font-size:14px;display:flex;align-items:center;gap:8px;}
+  .vt .badge{background:var(--tt-red);color:#fff;font-size:10px;padding:2px 8px;border-radius:12px;font-weight:700;}
+  .cp{font-size:12px;background:var(--tt-black);color:#fff;border:none;padding:6px 16px;border-radius:16px;cursor:pointer;font-weight:600;}
+  .cp.done{background:#1aab8a;}
+  .vlbl{font-size:11px;color:var(--tt-red);font-weight:800;margin:12px 0 4px;text-transform:uppercase;letter-spacing:.4px;}
+  .vlbl:first-child{margin-top:0;}
+  .vp{font-size:13px;line-height:1.65;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;white-space:pre-wrap;}
+  .vp.mono{font-family:"SF Mono",Consolas,monospace;font-size:12px;color:#333;}
+  .foot{text-align:center;font-size:11px;color:#bbb;margin:8px auto 0;max-width:880px;line-height:1.6;}
+</style>
 </head>
-<body class="min-h-screen bg-[#fbf7ff] text-slate-900">
-  <div class="fixed inset-0 -z-10 overflow-hidden">
-    <div class="absolute -top-28 -left-24 h-80 w-80 rounded-full bg-purple-300 blur-3xl opacity-60"></div>
-    <div class="absolute top-24 right-0 h-96 w-96 rounded-full bg-pink-200 blur-3xl opacity-70"></div>
-    <div class="absolute bottom-0 left-1/3 h-96 w-96 rounded-full bg-orange-200 blur-3xl opacity-60"></div>
+<body>
+
+<div class="hero">
+  <div class="inner">
+    <div class="logo"></div>
+    <div>
+      <h1>即梦短视频脚本生成器</h1>
+    </div>
+    <span class="tag">商家版</span>
+    <p>输入商品品类与（选填）拍摄要求，一键生成可直接用于即梦（Dreamina）AI 短视频的全英文生产脚本。免费开放，无需登录。<br><span style="color:var(--tt-cyan);font-weight:600;">注：页面为中文，生成的脚本结果均为英文。</span></p>
   </div>
+</div>
 
-  <header class="mx-auto max-w-7xl px-5 pt-8 pb-5">
-    <nav class="glass card-shadow flex items-center justify-between rounded-3xl px-5 py-4">
-      <div class="flex items-center gap-3">
-        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-950 text-white">AI</div>
-        <div>
-          <div class="text-sm font-semibold tracking-wide text-slate-900">Merchant Video Lab</div>
-          <div class="text-xs text-slate-500">Jingmeng / Seedance / TikTok Prompt Generator</div>
-        </div>
-      </div>
-      <div class="hidden items-center gap-2 text-xs font-medium text-slate-500 md:flex">
-        <span class="rounded-full bg-white/70 px-3 py-1">Public Access</span>
-        <span class="rounded-full bg-white/70 px-3 py-1">10 Templates</span>
-        <span class="rounded-full bg-white/70 px-3 py-1">English Prompts</span>
-      </div>
-    </nav>
-  </header>
+<div id="app">
+  <div class="wrap">
 
-  <main class="mx-auto max-w-7xl px-5 pb-16">
-    <section class="grid gap-8 py-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-      <div>
-        <div class="mb-5 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-purple-700 shadow-sm">For merchants who need video scripts fast</div>
-        <h1 class="text-4xl font-black leading-tight tracking-tight md:text-6xl">AI 视频脚本生成器<br><span class="gradient-text">10 个英文即梦模板一键生成</span></h1>
-        <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-600">参考门户型页面的轻量访问方式，把“给商家写脚本 / 生产视频脚本”做成任何人都可以打开使用的网站。输入产品品类、镜头和口播要求，即可生成适合 TikTok / 即梦 / Seedance 的 15 秒英文视频生产指令。</p>
-        <div class="mt-7 grid gap-3 sm:grid-cols-3">
-          <div class="glass rounded-2xl p-4"><div class="text-2xl font-black">10</div><div class="text-sm text-slate-500">Prompt templates</div></div>
-          <div class="glass rounded-2xl p-4"><div class="text-2xl font-black">15s</div><div class="text-sm text-slate-500">Default duration</div></div>
-          <div class="glass rounded-2xl p-4"><div class="text-2xl font-black">9:16</div><div class="text-sm text-slate-500">Vertical video</div></div>
-        </div>
+    <!-- 1. Category (required) -->
+    <div class="card">
+      <div class="sec-title"><span class="n">1</span> 商品品类 <span class="req">* 必填</span></div>
+      <div class="sec-desc">输入你的商品，或点击下方快捷选项（例如「陶瓷咖啡杯」「无线耳机」「护肤精华」）。</div>
+      <div class="cat-wrap">
+        <input id="cat" autocomplete="off" placeholder="例如：香薰加湿器" />
+      </div>
+      <div class="chips" id="catChips"></div>
+    </div>
+
+    <!-- 2. Requirements (optional) -->
+    <div class="card">
+      <div class="sec-title"><span class="n">2</span> 脚本要求 <span class="opt">（选填）</span></div>
+      <div class="sec-desc">任意项留空，生成器会自动选择智能默认值。</div>
+
+      <div class="field">
+        <div class="lbl">视频风格 / 调性</div>
+        <div class="opt-grid" id="styleGrid"></div>
       </div>
 
-      <div class="glass card-shadow rounded-[2rem] p-5 md:p-7">
-        <div class="mb-5 flex items-center justify-between">
-          <div>
-            <h2 class="text-2xl font-bold">生成参数</h2>
-            <p class="mt-1 text-sm text-slate-500">产品品类是必填项；其他信息可留空使用默认假设。</p>
-          </div>
-          <button id="fillDemo" class="rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700">填入示例</button>
+      <div class="row">
+        <div class="field">
+          <div class="lbl">视频时长</div>
+          <div class="num-pick" id="lenPick"></div>
         </div>
-
-        <form id="generatorForm" class="grid gap-4">
-          <label class="grid gap-2">
-            <span class="text-sm font-semibold">产品品类 / Product category <span class="text-pink-600">*</span></span>
-            <input id="product" class="rounded-2xl border border-slate-200 bg-white px-4 py-3" placeholder="例如：潮玩玩偶、宠物梳、便携榨汁杯" required />
-          </label>
-
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="grid gap-2">
-              <span class="text-sm font-semibold">视频用途</span>
-              <select id="goal" class="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                <option>TikTok product showcase</option>
-                <option>Soft-selling lifestyle content</option>
-                <option>New product launch</option>
-                <option>Paid ad creative testing</option>
-                <option>Creator seeding content</option>
-              </select>
-            </label>
-            <label class="grid gap-2">
-              <span class="text-sm font-semibold">整体风格</span>
-              <input id="style" class="rounded-2xl border border-slate-200 bg-white px-4 py-3" placeholder="cinematic, premium, cute, playful, techy" />
-            </label>
-          </div>
-
-          <label class="grid gap-2">
-            <span class="text-sm font-semibold">镜头要求</span>
-            <textarea id="camera" rows="3" class="rounded-2xl border border-slate-200 bg-white px-4 py-3" placeholder="例如：潮流快切、微距特写、slow push-in、whip pan、orbit shot"></textarea>
-          </label>
-
-          <label class="grid gap-2">
-            <span class="text-sm font-semibold">口播 / 声音要求</span>
-            <textarea id="voice" rows="3" class="rounded-2xl border border-slate-200 bg-white px-4 py-3" placeholder="例如：不要太硬，偏 collector 推荐感；或 no voiceover, upbeat music only"></textarea>
-          </label>
-
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="grid gap-2">
-              <span class="text-sm font-semibold">人物与场景</span>
-              <input id="talent" class="rounded-2xl border border-slate-200 bg-white px-4 py-3" placeholder="no human, creator hand, model, cozy desk" />
-            </label>
-            <label class="grid gap-2">
-              <span class="text-sm font-semibold">禁用元素</span>
-              <input id="negative" class="rounded-2xl border border-slate-200 bg-white px-4 py-3" placeholder="no price claims, no distorted hands, no extra products" />
-            </label>
-          </div>
-
-          <button type="submit" class="mt-2 rounded-2xl bg-gradient-to-r from-purple-700 via-pink-600 to-orange-500 px-6 py-4 text-base font-bold text-white shadow-xl shadow-pink-200 transition hover:scale-[1.01]">生成 10 个英文视频脚本模板</button>
-        </form>
+        <div class="field">
+          <div class="lbl">画幅比例</div>
+          <div class="num-pick" id="ratioPick"></div>
+        </div>
       </div>
-    </section>
 
-    <section class="mt-8 grid gap-6 lg:grid-cols-[320px_1fr]">
-      <aside class="glass h-fit rounded-[2rem] p-6">
-        <h3 class="text-lg font-bold">生成逻辑</h3>
-        <ul class="mt-4 space-y-3 text-sm leading-6 text-slate-600">
-          <li><strong>先确认品类：</strong>产品品类缺失时不生成，避免编造商品特征。</li>
-          <li><strong>模板结构固定：</strong>Hook、Lighting、Camera movement、Shot transition、Voiceover、Full prompt。</li>
-          <li><strong>创意方向不同：</strong>覆盖 hero close-up、unboxing、POV、ASMR、premium studio 等方向。</li>
-          <li><strong>可复制：</strong>每个模板都可单独复制给即梦或其他视频生成工具。</li>
-        </ul>
-      </aside>
-
-      <section class="glass rounded-[2rem] p-5 md:p-7">
-        <div class="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 class="text-2xl font-bold">生成结果</h2>
-            <p id="resultHint" class="mt-1 text-sm text-slate-500">填写左侧信息后生成。模板正文会保持英文。</p>
-          </div>
-          <div class="flex gap-2">
-            <button id="copyAll" class="hidden rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-purple-50">复制全部</button>
-            <button id="clearAll" class="hidden rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-pink-50">清空</button>
-          </div>
+      <div class="row">
+        <div class="field">
+          <div class="lbl">目标人群</div>
+          <input id="audience" autocomplete="off" placeholder="例如：年轻上班族、新手妈妈" />
         </div>
-        <div id="results" class="grid gap-4"></div>
-      </section>
-    </section>
-  </main>
+        <div class="field">
+          <div class="lbl">要强调的卖点 / 钩子</div>
+          <input id="usp" autocomplete="off" placeholder="例如：24 小时留香、环保材质、五折优惠" />
+        </div>
+      </div>
 
-  <footer class="mx-auto max-w-7xl px-5 pb-10 text-center text-sm text-slate-500">Public merchant AI video script generator · Built for fast prompt prototyping</footer>
+      <div class="field">
+        <div class="lbl">一次生产脚本数量</div>
+        <div class="num-pick" id="cntPick"></div>
+      </div>
 
-  <script>
-    const directions = [
-      { name: 'Hero Product Close-Up', best: 'clean product-first showcase', light: 'soft studio key light with gentle rim highlights', cam: 'slow macro push-in followed by a controlled orbit shot', trans: 'snap zoom into a clean match cut' },
-      { name: 'Unboxing Reveal', best: 'new product launch and first impression', light: 'warm tabletop light with subtle reflective highlights', cam: 'top-down reveal, then handheld close-up glide', trans: 'paper-tear cut and fast jump cuts' },
-      { name: 'Collector Showcase', best: 'fans, collectors, and niche communities', light: 'neon accent light with a dark premium background', cam: 'slow side glide across details, then a dramatic push-in', trans: 'whip pan between display angles' },
-      { name: 'Lifestyle Interaction', best: 'soft-selling daily use content', light: 'natural window light with warm shadows', cam: 'smooth handheld follow shot with close detail inserts', trans: 'soft dissolve into a lifestyle scene' },
-      { name: 'Fast Trend Edit', best: 'TikTok scroll-stopping creative tests', light: 'bright high-contrast light with colorful flashes', cam: 'quick handheld pans, crash zooms, and rhythmic close-ups', trans: 'beat-synced jump cuts and flash cuts' },
-      { name: 'ASMR Detail Focus', best: 'texture, material, packaging, and tactile appeal', light: 'low-angle soft light emphasizing texture and edges', cam: 'macro glide with shallow depth of field', trans: 'slow cross dissolve with sound-led cuts' },
-      { name: 'POV Experience', best: 'creator-style recommendation content', light: 'realistic room light with a subtle warm tone', cam: 'first-person hand interaction and close-up inspection', trans: 'quick POV match cuts' },
-      { name: 'Premium Minimal Studio', best: 'higher-end brand perception', light: 'clean luxury studio lighting with controlled shadows', cam: 'precise dolly-in and slow 180-degree orbit', trans: 'minimal seamless cuts with gentle fades' },
-      { name: 'Micro Story Scene', best: 'emotional hook and narrative selling point', light: 'cinematic side light with warm background practicals', cam: 'establishing shot, close-up reaction, product hero shot', trans: 'story beat cuts with a final hero reveal' },
-      { name: 'Before-After Demonstration', best: 'simple benefit demonstration without overclaiming', light: 'balanced bright light for clarity and trust', cam: 'locked-off comparison shot plus close-up inserts', trans: 'split-screen match cut and clean before-after wipe' }
-    ];
+      <div class="field">
+        <div class="lbl">给 AI 的额外备注（自由填写）</div>
+        <textarea id="notes" placeholder="例如：必须出现产品特写、要有真人手部出镜、节日主题等。"></textarea>
+      </div>
+    </div>
 
-    const form = document.getElementById('generatorForm');
-    const results = document.getElementById('results');
-    const hint = document.getElementById('resultHint');
-    const copyAll = document.getElementById('copyAll');
-    const clearAll = document.getElementById('clearAll');
-    let lastOutput = '';
+    <!-- Output -->
+    <div class="card">
+      <div class="sec-title"><span class="n">3</span> 生成的生产脚本（英文）</div>
+      <div class="sec-desc">复制任意脚本块，粘贴到即梦 / Dreamina 即可。每个变体包含逐镜分镜，以及可直接使用的 AI 成片生成提示词。结果均为英文。</div>
+      <div id="out"><div class="out-empty">点击下方「生成脚本」后，结果将显示在这里。</div></div>
+    </div>
 
-    function val(id, fallback) {
-      const raw = document.getElementById(id).value.trim();
-      return raw || fallback;
-    }
+  </div>
+  <div class="foot">本工具完全在你的浏览器本地运行，不上传任何数据。专为商家在即梦（Dreamina）上制作短视频而打造。</div>
+</div>
 
-    function makeTemplate(d, i, data) {
-      const voiceLine = data.voice.toLowerCase().includes('no voice') ? 'No voiceover; use an upbeat music bed, crisp product handling sounds, and subtle transition whooshes.' : `English voiceover with a ${data.voice} tone, concise pacing, and a natural creator-style delivery.`;
-      return `Template ${i + 1} — ${d.name}\nBest for: ${d.best}\nHook: Open with a visually clear 1-second moment that makes the viewer notice the ${data.product}.\nScene setup: ${data.talent}, styled for ${data.goal}, with a ${data.style} visual mood.\nSubject and product focus: Keep the ${data.product} as the hero object. Highlight its shape, texture, key detail, and use scenario without making exaggerated claims.\nLighting: ${d.light}.\nCamera movement: ${data.camera || d.cam}; include ${d.cam}.\nShot transition: ${d.trans}.\nAudio / Voiceover: ${voiceLine}\nOn-screen text: \"Made for your next scroll-stopping product video.\"\nFull production prompt: Create a 15-second vertical 9:16 TikTok-style product video for ${data.product}. The video should feel ${data.style} and be suitable for ${data.goal}. Start with a strong visual hook, show the product clearly in the first two seconds, then move through three concise shots: an attention-grabbing opening, a detail-focused product moment, and a final hero shot. Use ${d.light}, ${data.camera || d.cam}, and ${d.trans}. Keep the composition clean, the product realistic, and the pacing optimized for short-form social video. ${voiceLine} Add short English on-screen text only where it improves clarity.\nNegative constraints: ${data.negative}, no distorted product shape, no unreadable text, no cluttered background, no extra random objects, no unrealistic claims.`;
-    }
+<div class="gen-bar">
+  <button class="btn btn-ghost" onclick="resetAll()">重置</button>
+  <button class="btn btn-primary" id="genBtn" onclick="generate()">生成脚本</button>
+</div>
 
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const product = val('product', '');
-      if (!product) {
-        alert('请先填写产品品类 / Product category。');
-        return;
-      }
-      const data = {
-        product,
-        goal: val('goal', 'TikTok product showcase'),
-        style: val('style', 'cinematic, premium, social-friendly'),
-        camera: val('camera', ''),
-        voice: val('voice', 'soft-selling creator recommendation'),
-        talent: val('talent', 'clean product scene with optional creator hands'),
-        negative: val('negative', 'no price claims, no brand infringement, no distorted hands')
-      };
-      results.innerHTML = '';
-      const outputs = directions.map((d, i) => makeTemplate(d, i, data));
-      lastOutput = outputs.join('\n\n---\n\n');
-      outputs.forEach((text, idx) => {
-        const card = document.createElement('article');
-        card.className = 'template-card rounded-3xl border border-white/70 bg-white/80 p-5 shadow-sm';
-        card.innerHTML = `<div class="mb-3 flex items-center justify-between gap-3"><h3 class="text-lg font-bold">${directions[idx].name}</h3><button class="copy-one rounded-full bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-700">Copy</button></div><pre class="text-sm leading-6 text-slate-700"></pre>`;
-        card.querySelector('pre').textContent = text;
-        card.querySelector('.copy-one').addEventListener('click', async () => {
-          await navigator.clipboard.writeText(text);
-          card.querySelector('.copy-one').textContent = 'Copied';
-          setTimeout(() => card.querySelector('.copy-one').textContent = 'Copy', 1200);
-        });
-        results.appendChild(card);
-      });
-      hint.textContent = `已为「${product}」生成 10 个英文视频生产指令模板。`;
-      copyAll.classList.remove('hidden');
-      clearAll.classList.remove('hidden');
-      document.querySelector('#results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+<script>
+/* ============ Data ============ */
+/* 快捷品类：中文显示(cn) / 英文取值(en，用于生成英文脚本) */
+const CAT_PRESETS = [
+  {cn:"咖啡杯",en:"Coffee mug"},{cn:"无线耳机",en:"Wireless earbuds"},{cn:"护肤精华",en:"Skincare serum"},
+  {cn:"香薰加湿器",en:"Aromatherapy diffuser"},{cn:"瑜伽垫",en:"Yoga mat"},{cn:"LED 台灯",en:"LED desk lamp"},
+  {cn:"运动鞋",en:"Sneakers"},{cn:"宠物窝",en:"Pet bed"},{cn:"厨房刀具套装",en:"Kitchen knife set"},
+  {cn:"手机壳",en:"Phone case"},{cn:"智能水杯",en:"Smart water bottle"},{cn:"香薰蜡烛",en:"Scented candle"}
+];
+
+const STYLES = [
+  {k:"ugc",      t:"UGC / 真实感",   d:"真人随手拍、手持质感"},
+  {k:"premium",  t:"高级 / 质感",    d:"电影感、慢节奏、高级光影"},
+  {k:"energetic",t:"快节奏 / 活力",  d:"快切、动感、潮流"},
+  {k:"asmr",     t:"ASMR / 感官",    d:"特写、声音驱动、解压"},
+  {k:"funny",    t:"搞笑 / 情景剧",  d:"幽默、贴近生活、有钩子"},
+  {k:"tutorial", t:"教程 / 演示",    d:"展示用法、分步骤"}
+];
+const STYLE_DESC = {
+  ugc:"authentic UGC handheld style, natural daylight, relatable real-person tone",
+  premium:"cinematic premium look, soft directional lighting, shallow depth of field, elegant slow camera moves",
+  energetic:"high-energy fast-paced edit, punchy quick cuts, vibrant colors, trending music vibe",
+  asmr:"ASMR sensory close-ups, crisp product sounds, slow satisfying motion, macro detail",
+  funny:"light comedic skit tone, relatable everyday scenario, exaggerated reactions",
+  tutorial:"clear step-by-step demonstration, clean framing, instructional pacing"
+};
+
+const LENGTHS = ["9s","15s","21s","30s"];
+const RATIOS  = ["9:16","1:1","16:9"];
+const COUNTS  = [1,2,3,5,8,10];
+
+/* ============ State ============ */
+const state = { cat:"", style:"", len:"15s", ratio:"9:16", cnt:3 };
+
+/* ============ Build UI ============ */
+function chip(text){ const e=document.createElement('div'); e.className='chip'; e.textContent=text; return e; }
+
+const catChips=document.getElementById('catChips');
+CAT_PRESETS.forEach(c=>{
+  const e=chip(c.cn);          // 按钮显示中文
+  e.dataset.en=c.en;           // 取值用英文
+  e.onclick=()=>{ document.getElementById('cat').value=c.en; state.cat=c.en; markCatChips(); };
+  catChips.appendChild(e);
+});
+function markCatChips(){
+  const v=document.getElementById('cat').value.trim().toLowerCase();
+  [...catChips.children].forEach(ch=>ch.classList.toggle('sel', (ch.dataset.en||'').toLowerCase()===v));
+}
+document.getElementById('cat').addEventListener('input',e=>{ state.cat=e.target.value.trim(); markCatChips(); });
+
+const styleGrid=document.getElementById('styleGrid');
+STYLES.forEach(s=>{
+  const e=document.createElement('div'); e.className='opt';
+  e.innerHTML=`<div class="t">${s.t}</div><div class="d">${s.d}</div>`;
+  e.onclick=()=>{ const on=state.style===s.k; state.style=on?"":s.k; [...styleGrid.children].forEach(c=>c.classList.remove('sel')); if(!on)e.classList.add('sel'); };
+  styleGrid.appendChild(e);
+});
+
+function buildNum(elId, arr, key, fmt){
+  const box=document.getElementById(elId);
+  arr.forEach(v=>{
+    const e=document.createElement('div'); e.className='num'+(state[key]==v?' sel':''); e.textContent=fmt?fmt(v):v;
+    e.onclick=()=>{ state[key]=v; [...box.children].forEach(c=>c.classList.remove('sel')); e.classList.add('sel'); };
+    box.appendChild(e);
+  });
+}
+buildNum('lenPick',LENGTHS,'len');
+buildNum('ratioPick',RATIOS,'ratio');
+buildNum('cntPick',COUNTS,'cnt', v=>v+' 条');
+
+/* ============ Script Generation ============ */
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+function pick(arr,i){ return arr[i%arr.length]; }
+
+// Hook lines (variant openers)
+const HOOKS = [
+  p=>`POV: you finally found the ${p} that actually does the job.`,
+  p=>`Stop scrolling — this ${p} is the upgrade you didn't know you needed.`,
+  p=>`I tested 5 ${p}s so you don't have to. This one wins.`,
+  p=>`Why is nobody talking about this ${p}?`,
+  p=>`3 reasons this ${p} sold out last week 👇`,
+  p=>`If you use a ${p} every day, watch this first.`
+];
+const CTAS = [
+  "Tap the cart before it's gone.",
+  "Link in bio — limited stock today.",
+  "Add to cart and thank yourself later.",
+  "Order now, your future self will love it.",
+  "Don't miss the launch price — shop now."
+];
+
+// Approx scene count by length
+function sceneCount(len){ const n=parseInt(len); if(n<=9)return 3; if(n<=15)return 4; if(n<=21)return 5; return 6; }
+
+// Scene templates per style
+function buildScenes(prod, style, len, audience, usp){
+  const n=sceneCount(len);
+  const per=Math.max(2, Math.round(parseInt(len)/n));
+  const aud = audience? ` for ${audience}` : "";
+  const point = usp? usp : "its standout feature";
+  const lib = {
+    ugc:[
+      `Real person holds the ${prod} up to camera, casual room, natural light. They look slightly surprised.`,
+      `Quick handheld close-up of the ${prod} in everyday use${aud}.`,
+      `Reaction shot: genuine smile / nod showing ${point} works.`,
+      `Show the ${prod} from a second angle, highlight texture and detail.`,
+      `Before/after or "expectation vs reality" beat about the ${prod}.`,
+      `Person points to product, encouraging gesture toward the camera.`
+    ],
+    premium:[
+      `Slow dolly-in on the ${prod} on a clean surface, soft key light, dark elegant background.`,
+      `Macro rotate of the ${prod}, light glides across the surface revealing ${point}.`,
+      `Lifestyle wide: the ${prod} placed in a tasteful, aspirational setting${aud}.`,
+      `Hand gracefully interacts with the ${prod}, shallow depth of field.`,
+      `Hero beauty shot of the ${prod}, subtle light flare, premium mood.`,
+      `Logo / packaging reveal with refined motion and negative space.`
+    ],
+    energetic:[
+      `Snap zoom onto the ${prod} with a punchy sound effect, bright background.`,
+      `Rapid montage of the ${prod} in 3 quick uses${aud}.`,
+      `Fast text-pop overlay calling out ${point}.`,
+      `Whip-pan transition to a satisfying product action.`,
+      `Energetic reaction + thumbs up, vibrant color grade.`,
+      `Final freeze-frame on the ${prod} with bold CTA text.`
+    ],
+    asmr:[
+      `Extreme close-up of the ${prod}, crisp tactile sound as it's picked up.`,
+      `Slow satisfying motion: opening / using the ${prod}, isolated sound design.`,
+      `Macro detail of texture and material quality showing ${point}.`,
+      `Gentle hands move the ${prod}, soft ambient audio${aud}.`,
+      `Trickle / pour / click sensory moment with the ${prod}.`,
+      `Calm resting shot of the ${prod}, breathy fade-out.`
+    ],
+    funny:[
+      `Relatable "problem" moment without the ${prod} — mild frustration, comedic timing.`,
+      `Beat drop: the ${prod} appears as the hero solution.`,
+      `Exaggerated happy reaction once they try the ${prod}${aud}.`,
+      `Quick gag highlighting ${point} in an over-the-top way.`,
+      `Friend/partner reacts jealously to the ${prod}.`,
+      `Cheeky direct-to-camera line + CTA.`
+    ],
+    tutorial:[
+      `On-screen title: "How to use the ${prod} in ${n} steps". Product on table.`,
+      `Step 1 close-up demo of setting up / opening the ${prod}.`,
+      `Step 2 showing the ${prod} in action, emphasize ${point}${aud}.`,
+      `Step 3 result shot — the clear benefit/outcome.`,
+      `Tip overlay with a pro usage trick for the ${prod}.`,
+      `Recap shot + CTA to buy the ${prod}.`
+    ]
+  };
+  const scenes=lib[style]||lib.ugc;
+  let out=[]; let t=0;
+  for(let i=0;i<n;i++){ const dur=(i===n-1)?(parseInt(len)-t):per; out.push({i:i+1, start:t, dur:Math.max(1,dur), desc:scenes[i%scenes.length]}); t+=per; }
+  return out;
+}
+
+function buildScript(prod, idx){
+  const style = state.style || pick(["ugc","energetic","premium"], idx);
+  const audience = document.getElementById('audience').value.trim();
+  const usp = document.getElementById('usp').value.trim();
+  const notes = document.getElementById('notes').value.trim();
+  const len=state.len, ratio=state.ratio;
+  const scenes=buildScenes(prod, style, len, audience, usp);
+  const hook=HOOKS[idx%HOOKS.length](prod);
+  const cta=CTAS[idx%CTAS.length];
+  const styleDesc=STYLE_DESC[style];
+
+  // Shot list text
+  let shots = scenes.map(s=>`Scene ${s.i} (${s.start}-${s.start+s.dur}s): ${s.desc}`).join("\n");
+
+  // Voiceover / captions
+  const vo = [
+    `[0s] HOOK: "${hook}"`,
+    `[mid] VALUE: "Here's why ${prod} fans love it${usp? ' — '+usp : ''}."`,
+    `[end] CTA: "${cta}"`
+  ].join("\n");
+
+  // Jimeng generation prompt (the part to paste into the tool)
+  const aud = audience? `, target audience: ${audience}` : "";
+  const point = usp? `, emphasize selling point: "${usp}"` : "";
+  const noteStr = notes? ` Additional requirements: ${notes}.` : "";
+  const prompt =
+`Create a ${len} vertical ${ratio} short marketing video for "${prod}".
+Visual style: ${styleDesc}${aud}${point}.
+Shot sequence: ${scenes.map(s=>`(${s.start}-${s.start+s.dur}s) ${s.desc}`).join(" ")}
+Overlay captions in English; clean modern kinetic text; trending background music matching a ${style} mood; product must stay sharp and well-lit in every shot; end on a clear call-to-action frame.${noteStr}`;
+
+  return {style, len, ratio, hook, shots, vo, cta, prompt};
+}
+
+function escapeHtml(s){ return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+function generate(){
+  const prod = document.getElementById('cat').value.trim();
+  if(!prod){ alert("请先填写商品品类（第 1 步）。"); document.getElementById('cat').focus(); return; }
+
+  // 风格英文名映射（用于英文脚本输出，与 UI 中文标签解耦）
+  const STYLE_EN = {ugc:"UGC / Authentic",premium:"Premium / Luxe",energetic:"Energetic / Fast",asmr:"ASMR / Sensory",funny:"Funny / Skit",tutorial:"How-to / Demo"};
+
+  const out=document.getElementById('out');
+  out.innerHTML="";
+  for(let i=0;i<state.cnt;i++){
+    const sc=buildScript(prod, i);
+    const styleName=(STYLES.find(s=>s.k===sc.style)||{t:sc.style}).t;   // 中文，用于 UI 徽章
+    const styleNameEn=STYLE_EN[sc.style]||sc.style;                     // 英文，用于复制内容
+    const box=document.createElement('div'); box.className='vbox';
+    const copyText =
+`=== JIMENG VIDEO SCRIPT: ${prod} (Variant ${i+1} - ${styleNameEn}) ===
+Length: ${sc.len} | Ratio: ${sc.ratio}
+
+[SHOT LIST]
+${sc.shots}
+
+[VOICEOVER / CAPTIONS]
+${sc.vo}
+
+[JIMENG GENERATION PROMPT]
+${sc.prompt}`;
+    box.innerHTML=`
+      <div class="vhead">
+        <div class="vt">变体 ${i+1} <span class="badge">${styleName}</span> <span style="color:var(--sub);font-weight:600;font-size:11px;">${sc.len} · ${sc.ratio}</span></div>
+        <button class="cp">复制全部</button>
+      </div>
+      <div class="vlbl">Shot List</div>
+      <div class="vp">${escapeHtml(sc.shots)}</div>
+      <div class="vlbl">Voiceover / Captions</div>
+      <div class="vp">${escapeHtml(sc.vo)}</div>
+      <div class="vlbl">Jimeng Generation Prompt</div>
+      <div class="vp mono">${escapeHtml(sc.prompt)}</div>`;
+    const btn=box.querySelector('.cp');
+    btn.onclick=()=>{ navigator.clipboard.writeText(copyText).then(()=>{ btn.textContent="已复制 ✓"; btn.classList.add('done'); setTimeout(()=>{btn.textContent="复制全部"; btn.classList.remove('done');},1600); }); };
+    out.appendChild(box);
+  }
+  out.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function resetAll(){
+  document.getElementById('cat').value="";
+  document.getElementById('audience').value="";
+  document.getElementById('usp').value="";
+  document.getElementById('notes').value="";
+  state.cat=""; state.style=""; state.len="15s"; state.ratio="9:16"; state.cnt=3;
+  markCatChips();
+  [...styleGrid.children].forEach(c=>c.classList.remove('sel'));
+  ['lenPick','ratioPick','cntPick'].forEach(id=>{
+    const box=document.getElementById(id);
+    [...box.children].forEach((c,i)=>{
+      const def = id==='lenPick'?(c.textContent==='15s') : id==='ratioPick'?(c.textContent==='9:16') : (c.textContent.startsWith('3'));
+      c.classList.toggle('sel', def);
     });
-
-    copyAll.addEventListener('click', async () => {
-      if (!lastOutput) return;
-      await navigator.clipboard.writeText(lastOutput);
-      copyAll.textContent = '已复制全部';
-      setTimeout(() => copyAll.textContent = '复制全部', 1200);
-    });
-
-    clearAll.addEventListener('click', () => {
-      results.innerHTML = '';
-      lastOutput = '';
-      hint.textContent = '填写左侧信息后生成。模板正文会保持英文。';
-      copyAll.classList.add('hidden');
-      clearAll.classList.add('hidden');
-    });
-
-    document.getElementById('fillDemo').addEventListener('click', () => {
-      document.getElementById('product').value = 'designer collectible toy figure';
-      document.getElementById('goal').value = 'Creator seeding content';
-      document.getElementById('style').value = 'playful, collector-style, premium toy photography';
-      document.getElementById('camera').value = 'fast trend cuts, macro close-ups, slow push-in, orbit shot, whip pan transition';
-      document.getElementById('voice').value = 'not too salesy, collector recommendation, energetic but natural';
-      document.getElementById('talent').value = 'creator hands unboxing the toy on a clean desk with small display props';
-      document.getElementById('negative').value = 'no hard-selling price claims, no distorted toy face, no extra random toys, no text glitches';
-    });
-  </script>
+  });
+  document.getElementById('out').innerHTML='<div class="out-empty">点击下方「生成脚本」后，结果将显示在这里。</div>';
+}
+</script>
 </body>
 </html>
