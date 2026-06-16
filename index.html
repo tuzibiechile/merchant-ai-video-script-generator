@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Merchant AI Video Script Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .glass { background: rgba(255,255,255,0.78); backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,0.65); }
+    .gradient-text { background: linear-gradient(90deg, #7c3aed, #ec4899, #f97316); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .card-shadow { box-shadow: 0 24px 80px rgba(76, 29, 149, 0.16); }
+    textarea, input, select { outline: none; }
+    .template-card pre { white-space: pre-wrap; word-break: break-word; }
+  </style>
+</head>
+<body class="min-h-screen bg-[#fbf7ff] text-slate-900">
+  <div class="fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute -top-28 -left-24 h-80 w-80 rounded-full bg-purple-300 blur-3xl opacity-60"></div>
+    <div class="absolute top-24 right-0 h-96 w-96 rounded-full bg-pink-200 blur-3xl opacity-70"></div>
+    <div class="absolute bottom-0 left-1/3 h-96 w-96 rounded-full bg-orange-200 blur-3xl opacity-60"></div>
+  </div>
+
+  <header class="mx-auto max-w-7xl px-5 pt-8 pb-5">
+    <nav class="glass card-shadow flex items-center justify-between rounded-3xl px-5 py-4">
+      <div class="flex items-center gap-3">
+        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-950 text-white">AI</div>
+        <div>
+          <div class="text-sm font-semibold tracking-wide text-slate-900">Merchant Video Lab</div>
+          <div class="text-xs text-slate-500">Jingmeng / Seedance / TikTok Prompt Generator</div>
+        </div>
+      </div>
+      <div class="hidden items-center gap-2 text-xs font-medium text-slate-500 md:flex">
+        <span class="rounded-full bg-white/70 px-3 py-1">Public Access</span>
+        <span class="rounded-full bg-white/70 px-3 py-1">10 Templates</span>
+        <span class="rounded-full bg-white/70 px-3 py-1">English Prompts</span>
+      </div>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-5 pb-16">
+    <section class="grid gap-8 py-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+      <div>
+        <div class="mb-5 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-purple-700 shadow-sm">For merchants who need video scripts fast</div>
+        <h1 class="text-4xl font-black leading-tight tracking-tight md:text-6xl">AI 视频脚本生成器<br><span class="gradient-text">10 个英文即梦模板一键生成</span></h1>
+        <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-600">参考门户型页面的轻量访问方式，把“给商家写脚本 / 生产视频脚本”做成任何人都可以打开使用的网站。输入产品品类、镜头和口播要求，即可生成适合 TikTok / 即梦 / Seedance 的 15 秒英文视频生产指令。</p>
+        <div class="mt-7 grid gap-3 sm:grid-cols-3">
+          <div class="glass rounded-2xl p-4"><div class="text-2xl font-black">10</div><div class="text-sm text-slate-500">Prompt templates</div></div>
+          <div class="glass rounded-2xl p-4"><div class="text-2xl font-black">15s</div><div class="text-sm text-slate-500">Default duration</div></div>
+          <div class="glass rounded-2xl p-4"><div class="text-2xl font-black">9:16</div><div class="text-sm text-slate-500">Vertical video</div></div>
+        </div>
+      </div>
+
+      <div class="glass card-shadow rounded-[2rem] p-5 md:p-7">
+        <div class="mb-5 flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold">生成参数</h2>
+            <p class="mt-1 text-sm text-slate-500">产品品类是必填项；其他信息可留空使用默认假设。</p>
+          </div>
+          <button id="fillDemo" class="rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700">填入示例</button>
+        </div>
+
+        <form id="generatorForm" class="grid gap-4">
+          <label class="grid gap-2">
+            <span class="text-sm font-semibold">产品品类 / Product category <span class="text-pink-600">*</span></span>
+            <input id="product" class="rounded-2xl border border-slate-200 bg-white px-4 py-3" placeholder="例如：潮玩玩偶、宠物梳、便携榨汁杯" required />
+          </label>
+
+          <div class="grid gap-4 md:grid-cols-2">
+            <label class="grid gap-2">
+              <span class="text-sm font-semibold">视频用途</span>
+              <select id="goal" class="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                <option>TikTok product showcase</option>
+                <option>Soft-selling lifestyle content</option>
+                <option>New product launch</option>
+                <option>Paid ad creative testing</option>
+                <option>Creator seeding content</option>
+              </select>
+            </label>
+            <label class="grid gap-2">
+              <span class="text-sm font-semibold">整体风格</span>
+              <input id="style" class="rounded-2xl border border-slate-200 bg-white px-4 py-3" placeholder="cinematic, premium, cute, playful, techy" />
+            </label>
+          </div>
+
+          <label class="grid gap-2">
+            <span class="text-sm font-semibold">镜头要求</span>
+            <textarea id="camera" rows="3" class="rounded-2xl border border-slate-200 bg-white px-4 py-3" placeholder="例如：潮流快切、微距特写、slow push-in、whip pan、orbit shot"></textarea>
+          </label>
+
+          <label class="grid gap-2">
+            <span class="text-sm font-semibold">口播 / 声音要求</span>
+            <textarea id="voice" rows="3" class="rounded-2xl border border-slate-200 bg-white px-4 py-3" placeholder="例如：不要太硬，偏 collector 推荐感；或 no voiceover, upbeat music only"></textarea>
+          </label>
+
+          <div class="grid gap-4 md:grid-cols-2">
+            <label class="grid gap-2">
+              <span class="text-sm font-semibold">人物与场景</span>
+              <input id="talent" class="rounded-2xl border border-slate-200 bg-white px-4 py-3" placeholder="no human, creator hand, model, cozy desk" />
+            </label>
+            <label class="grid gap-2">
+              <span class="text-sm font-semibold">禁用元素</span>
+              <input id="negative" class="rounded-2xl border border-slate-200 bg-white px-4 py-3" placeholder="no price claims, no distorted hands, no extra products" />
+            </label>
+          </div>
+
+          <button type="submit" class="mt-2 rounded-2xl bg-gradient-to-r from-purple-700 via-pink-600 to-orange-500 px-6 py-4 text-base font-bold text-white shadow-xl shadow-pink-200 transition hover:scale-[1.01]">生成 10 个英文视频脚本模板</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="mt-8 grid gap-6 lg:grid-cols-[320px_1fr]">
+      <aside class="glass h-fit rounded-[2rem] p-6">
+        <h3 class="text-lg font-bold">生成逻辑</h3>
+        <ul class="mt-4 space-y-3 text-sm leading-6 text-slate-600">
+          <li><strong>先确认品类：</strong>产品品类缺失时不生成，避免编造商品特征。</li>
+          <li><strong>模板结构固定：</strong>Hook、Lighting、Camera movement、Shot transition、Voiceover、Full prompt。</li>
+          <li><strong>创意方向不同：</strong>覆盖 hero close-up、unboxing、POV、ASMR、premium studio 等方向。</li>
+          <li><strong>可复制：</strong>每个模板都可单独复制给即梦或其他视频生成工具。</li>
+        </ul>
+      </aside>
+
+      <section class="glass rounded-[2rem] p-5 md:p-7">
+        <div class="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 class="text-2xl font-bold">生成结果</h2>
+            <p id="resultHint" class="mt-1 text-sm text-slate-500">填写左侧信息后生成。模板正文会保持英文。</p>
+          </div>
+          <div class="flex gap-2">
+            <button id="copyAll" class="hidden rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-purple-50">复制全部</button>
+            <button id="clearAll" class="hidden rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-pink-50">清空</button>
+          </div>
+        </div>
+        <div id="results" class="grid gap-4"></div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="mx-auto max-w-7xl px-5 pb-10 text-center text-sm text-slate-500">Public merchant AI video script generator · Built for fast prompt prototyping</footer>
+
+  <script>
+    const directions = [
+      { name: 'Hero Product Close-Up', best: 'clean product-first showcase', light: 'soft studio key light with gentle rim highlights', cam: 'slow macro push-in followed by a controlled orbit shot', trans: 'snap zoom into a clean match cut' },
+      { name: 'Unboxing Reveal', best: 'new product launch and first impression', light: 'warm tabletop light with subtle reflective highlights', cam: 'top-down reveal, then handheld close-up glide', trans: 'paper-tear cut and fast jump cuts' },
+      { name: 'Collector Showcase', best: 'fans, collectors, and niche communities', light: 'neon accent light with a dark premium background', cam: 'slow side glide across details, then a dramatic push-in', trans: 'whip pan between display angles' },
+      { name: 'Lifestyle Interaction', best: 'soft-selling daily use content', light: 'natural window light with warm shadows', cam: 'smooth handheld follow shot with close detail inserts', trans: 'soft dissolve into a lifestyle scene' },
+      { name: 'Fast Trend Edit', best: 'TikTok scroll-stopping creative tests', light: 'bright high-contrast light with colorful flashes', cam: 'quick handheld pans, crash zooms, and rhythmic close-ups', trans: 'beat-synced jump cuts and flash cuts' },
+      { name: 'ASMR Detail Focus', best: 'texture, material, packaging, and tactile appeal', light: 'low-angle soft light emphasizing texture and edges', cam: 'macro glide with shallow depth of field', trans: 'slow cross dissolve with sound-led cuts' },
+      { name: 'POV Experience', best: 'creator-style recommendation content', light: 'realistic room light with a subtle warm tone', cam: 'first-person hand interaction and close-up inspection', trans: 'quick POV match cuts' },
+      { name: 'Premium Minimal Studio', best: 'higher-end brand perception', light: 'clean luxury studio lighting with controlled shadows', cam: 'precise dolly-in and slow 180-degree orbit', trans: 'minimal seamless cuts with gentle fades' },
+      { name: 'Micro Story Scene', best: 'emotional hook and narrative selling point', light: 'cinematic side light with warm background practicals', cam: 'establishing shot, close-up reaction, product hero shot', trans: 'story beat cuts with a final hero reveal' },
+      { name: 'Before-After Demonstration', best: 'simple benefit demonstration without overclaiming', light: 'balanced bright light for clarity and trust', cam: 'locked-off comparison shot plus close-up inserts', trans: 'split-screen match cut and clean before-after wipe' }
+    ];
+
+    const form = document.getElementById('generatorForm');
+    const results = document.getElementById('results');
+    const hint = document.getElementById('resultHint');
+    const copyAll = document.getElementById('copyAll');
+    const clearAll = document.getElementById('clearAll');
+    let lastOutput = '';
+
+    function val(id, fallback) {
+      const raw = document.getElementById(id).value.trim();
+      return raw || fallback;
+    }
+
+    function makeTemplate(d, i, data) {
+      const voiceLine = data.voice.toLowerCase().includes('no voice') ? 'No voiceover; use an upbeat music bed, crisp product handling sounds, and subtle transition whooshes.' : `English voiceover with a ${data.voice} tone, concise pacing, and a natural creator-style delivery.`;
+      return `Template ${i + 1} — ${d.name}\nBest for: ${d.best}\nHook: Open with a visually clear 1-second moment that makes the viewer notice the ${data.product}.\nScene setup: ${data.talent}, styled for ${data.goal}, with a ${data.style} visual mood.\nSubject and product focus: Keep the ${data.product} as the hero object. Highlight its shape, texture, key detail, and use scenario without making exaggerated claims.\nLighting: ${d.light}.\nCamera movement: ${data.camera || d.cam}; include ${d.cam}.\nShot transition: ${d.trans}.\nAudio / Voiceover: ${voiceLine}\nOn-screen text: \"Made for your next scroll-stopping product video.\"\nFull production prompt: Create a 15-second vertical 9:16 TikTok-style product video for ${data.product}. The video should feel ${data.style} and be suitable for ${data.goal}. Start with a strong visual hook, show the product clearly in the first two seconds, then move through three concise shots: an attention-grabbing opening, a detail-focused product moment, and a final hero shot. Use ${d.light}, ${data.camera || d.cam}, and ${d.trans}. Keep the composition clean, the product realistic, and the pacing optimized for short-form social video. ${voiceLine} Add short English on-screen text only where it improves clarity.\nNegative constraints: ${data.negative}, no distorted product shape, no unreadable text, no cluttered background, no extra random objects, no unrealistic claims.`;
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const product = val('product', '');
+      if (!product) {
+        alert('请先填写产品品类 / Product category。');
+        return;
+      }
+      const data = {
+        product,
+        goal: val('goal', 'TikTok product showcase'),
+        style: val('style', 'cinematic, premium, social-friendly'),
+        camera: val('camera', ''),
+        voice: val('voice', 'soft-selling creator recommendation'),
+        talent: val('talent', 'clean product scene with optional creator hands'),
+        negative: val('negative', 'no price claims, no brand infringement, no distorted hands')
+      };
+      results.innerHTML = '';
+      const outputs = directions.map((d, i) => makeTemplate(d, i, data));
+      lastOutput = outputs.join('\n\n---\n\n');
+      outputs.forEach((text, idx) => {
+        const card = document.createElement('article');
+        card.className = 'template-card rounded-3xl border border-white/70 bg-white/80 p-5 shadow-sm';
+        card.innerHTML = `<div class="mb-3 flex items-center justify-between gap-3"><h3 class="text-lg font-bold">${directions[idx].name}</h3><button class="copy-one rounded-full bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-700">Copy</button></div><pre class="text-sm leading-6 text-slate-700"></pre>`;
+        card.querySelector('pre').textContent = text;
+        card.querySelector('.copy-one').addEventListener('click', async () => {
+          await navigator.clipboard.writeText(text);
+          card.querySelector('.copy-one').textContent = 'Copied';
+          setTimeout(() => card.querySelector('.copy-one').textContent = 'Copy', 1200);
+        });
+        results.appendChild(card);
+      });
+      hint.textContent = `已为「${product}」生成 10 个英文视频生产指令模板。`;
+      copyAll.classList.remove('hidden');
+      clearAll.classList.remove('hidden');
+      document.querySelector('#results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    copyAll.addEventListener('click', async () => {
+      if (!lastOutput) return;
+      await navigator.clipboard.writeText(lastOutput);
+      copyAll.textContent = '已复制全部';
+      setTimeout(() => copyAll.textContent = '复制全部', 1200);
+    });
+
+    clearAll.addEventListener('click', () => {
+      results.innerHTML = '';
+      lastOutput = '';
+      hint.textContent = '填写左侧信息后生成。模板正文会保持英文。';
+      copyAll.classList.add('hidden');
+      clearAll.classList.add('hidden');
+    });
+
+    document.getElementById('fillDemo').addEventListener('click', () => {
+      document.getElementById('product').value = 'designer collectible toy figure';
+      document.getElementById('goal').value = 'Creator seeding content';
+      document.getElementById('style').value = 'playful, collector-style, premium toy photography';
+      document.getElementById('camera').value = 'fast trend cuts, macro close-ups, slow push-in, orbit shot, whip pan transition';
+      document.getElementById('voice').value = 'not too salesy, collector recommendation, energetic but natural';
+      document.getElementById('talent').value = 'creator hands unboxing the toy on a clean desk with small display props';
+      document.getElementById('negative').value = 'no hard-selling price claims, no distorted toy face, no extra random toys, no text glitches';
+    });
+  </script>
+</body>
+</html>
