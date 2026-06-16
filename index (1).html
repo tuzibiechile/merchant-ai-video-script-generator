@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>即梦短视频脚本生成器 | 商家版</title>
+<style>
+  :root{ --tt-black:#000; --tt-red:#FE2C55; --tt-cyan:#25F4EE; --bg:#f4f4f5; --card:#fff; --line:#ececec; --txt:#161823; --sub:#8a8b91; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--txt);}
+
+  /* ===== Top hero ===== */
+  .hero{background:linear-gradient(135deg,#161823 0%,#2a0a14 100%);color:#fff;padding:30px 16px 26px;}
+  .hero .inner{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .logo{width:46px;height:46px;border-radius:12px;background:var(--tt-black);position:relative;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.08);}
+  .logo::before{content:"\266A";color:var(--tt-cyan);position:absolute;font-size:28px;left:10px;top:5px;text-shadow:2.5px 0 var(--tt-red);}
+  .hero h1{font-size:22px;font-weight:800;letter-spacing:-.3px;}
+  .hero .tag{font-size:12px;color:#fff;background:var(--tt-red);padding:3px 10px;border-radius:20px;font-weight:700;}
+  .hero p{font-size:13px;color:#c9c9cf;margin:10px 0 0;width:100%;line-height:1.6;}
+
+  /* ===== App body ===== */
+  #app{padding:24px 16px 110px;}
+  .wrap{max-width:880px;margin:0 auto;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .sec-title{font-size:15px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+  .sec-title .n{width:22px;height:22px;border-radius:50%;background:var(--tt-black);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:700;flex:none;}
+  .sec-title .req{color:var(--tt-red);font-size:12px;}
+  .sec-title .opt{color:var(--sub);font-size:12px;font-weight:500;}
+  .sec-desc{font-size:12px;color:var(--sub);margin:0 0 14px 30px;line-height:1.5;}
+
+  input,select,textarea{font-family:inherit;font-size:13px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;outline:none;width:100%;background:#fff;color:var(--txt);}
+  input:focus,select:focus,textarea:focus{border-color:var(--tt-black);}
+  textarea{resize:vertical;min-height:64px;line-height:1.5;}
+  .lbl{font-size:12px;color:var(--sub);margin-bottom:5px;font-weight:600;}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:560px){.row{grid-template-columns:1fr;}}
+  .field{margin-bottom:12px;}
+  .field:last-child{margin-bottom:0;}
+
+  .cat-wrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .cat-wrap input{flex:1;min-width:200px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  .chip{padding:6px 12px;border-radius:18px;background:#f0f0f1;font-size:12px;cursor:pointer;border:1.5px solid transparent;user-select:none;font-weight:600;}
+  .chip:hover{border-color:#ccc;}
+  .chip.sel{background:var(--tt-black);color:#fff;}
+
+  .opt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .opt{border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;cursor:pointer;transition:.15s;background:#fff;}
+  .opt:hover{border-color:#ccc;transform:translateY(-1px);}
+  .opt.sel{border-color:var(--tt-red);background:#fff4f6;box-shadow:0 0 0 3px rgba(254,44,85,.08);}
+  .opt .t{font-weight:700;font-size:13px;}
+  .opt .d{font-size:11px;color:var(--sub);margin-top:3px;line-height:1.35;}
+
+  .num-pick{display:flex;gap:6px;flex-wrap:wrap;}
+  .num{min-width:42px;height:38px;padding:0 10px;border-radius:10px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer;font-size:13px;background:#fff;}
+  .num.sel{background:var(--tt-black);color:#fff;border-color:var(--tt-black);}
+
+  /* ===== Generate bar ===== */
+  .gen-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:14px 16px;display:flex;justify-content:center;gap:12px;z-index:50;box-shadow:0 -2px 12px rgba(0,0,0,.05);}
+  .btn{padding:13px 30px;border-radius:30px;border:none;font-size:15px;font-weight:800;cursor:pointer;}
+  .btn-primary{background:var(--tt-red);color:#fff;} .btn-primary:disabled{background:#f0a8b6;cursor:not-allowed;}
+  .btn-ghost{background:#f0f0f1;color:var(--txt);}
+
+  /* ===== Output ===== */
+  #out{margin-top:4px;}
+  .out-empty{font-size:13px;color:var(--sub);font-style:italic;text-align:center;padding:18px;}
+  .vbox{border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;background:#fafafa;}
+  .vhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap;}
+  .vt{font-weight:800;font-size:14px;display:flex;align-items:center;gap:8px;}
+  .vt .badge{background:var(--tt-red);color:#fff;font-size:10px;padding:2px 8px;border-radius:12px;font-weight:700;}
+  .cp{font-size:12px;background:var(--tt-black);color:#fff;border:none;padding:6px 16px;border-radius:16px;cursor:pointer;font-weight:600;}
+  .cp.done{background:#1aab8a;}
+  .vlbl{font-size:11px;color:var(--tt-red);font-weight:800;margin:12px 0 4px;text-transform:uppercase;letter-spacing:.4px;}
+  .vlbl:first-child{margin-top:0;}
+  .vp{font-size:13px;line-height:1.65;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;white-space:pre-wrap;}
+  .vp.mono{font-family:"SF Mono",Consolas,monospace;font-size:12px;color:#333;}
+  .foot{text-align:center;font-size:11px;color:#bbb;margin:8px auto 0;max-width:880px;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="inner">
+    <div class="logo"></div>
+    <div>
+      <h1>即梦短视频脚本生成器</h1>
+    </div>
+    <span class="tag">商家版</span>
+    <p>输入商品品类与（选填）拍摄要求，一键生成可直接用于即梦（Dreamina）AI 短视频的全英文生产脚本。免费开放，无需登录。<br><span style="color:var(--tt-cyan);font-weight:600;">注：页面为中文，生成的脚本结果均为英文；你输入的中文（品类 / 人群 / 卖点 / 备注）会自动翻译成英文后写入脚本，脚本中不会出现任何中文。</span></p>
+  </div>
+</div>
+
+<div id="app">
+  <div class="wrap">
+
+    <!-- 1. Category (required) -->
+    <div class="card">
+      <div class="sec-title"><span class="n">1</span> 商品品类 <span class="req">* 必填</span></div>
+      <div class="sec-desc">输入你的商品，或点击下方快捷选项（例如「陶瓷咖啡杯」「无线耳机」「护肤精华」）。</div>
+      <div class="cat-wrap">
+        <input id="cat" autocomplete="off" placeholder="例如：香薰加湿器" />
+      </div>
+      <div class="chips" id="catChips"></div>
+    </div>
+
+    <!-- 2. Requirements (optional) -->
+    <div class="card">
+      <div class="sec-title"><span class="n">2</span> 脚本要求 <span class="opt">（选填）</span></div>
+      <div class="sec-desc">任意项留空，生成器会自动选择智能默认值。</div>
+
+      <div class="field">
+        <div class="lbl">视频风格 / 调性</div>
+        <div class="opt-grid" id="styleGrid"></div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <div class="lbl">视频时长</div>
+          <div class="num-pick" id="lenPick"></div>
+        </div>
+        <div class="field">
+          <div class="lbl">画幅比例</div>
+          <div class="num-pick" id="ratioPick"></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <div class="lbl">目标人群</div>
+          <input id="audience" autocomplete="off" placeholder="例如：年轻上班族、新手妈妈" />
+        </div>
+        <div class="field">
+          <div class="lbl">要强调的卖点 / 钩子</div>
+          <input id="usp" autocomplete="off" placeholder="例如：24 小时留香、环保材质、五折优惠" />
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="lbl">一次生产脚本数量</div>
+        <div class="num-pick" id="cntPick"></div>
+      </div>
+
+      <div class="field">
+        <div class="lbl">给 AI 的额外备注（自由填写）</div>
+        <textarea id="notes" placeholder="例如：必须出现产品特写、要有真人手部出镜、节日主题等。"></textarea>
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div class="card">
+      <div class="sec-title"><span class="n">3</span> 生成的生产脚本（英文）</div>
+      <div class="sec-desc">复制任意脚本块，粘贴到即梦 / Dreamina 即可。每条脚本包含：结构化模板（Hook / 灯光 / 运镜 / 转场等）、逐镜分镜、配音字幕、完整成片提示词、负向约束。结果均为英文，绝无中文。</div>
+      <div id="out"><div class="out-empty">点击下方「生成脚本」后，结果将显示在这里。</div></div>
+    </div>
+
+  </div>
+  <div class="foot">本工具完全在你的浏览器本地运行，不上传任何数据。专为商家在即梦（Dreamina）上制作短视频而打造。</div>
+</div>
+
+<div class="gen-bar">
+  <button class="btn btn-ghost" onclick="resetAll()">重置</button>
+  <button class="btn btn-primary" id="genBtn" onclick="generate()">生成脚本</button>
+</div>
+
+<script>
+/* ============ Data ============ */
+/* 快捷品类：中文显示(cn) / 英文取值(en，用于生成英文脚本) */
+const CAT_PRESETS = [
+  {cn:"咖啡杯",en:"Coffee mug"},{cn:"无线耳机",en:"Wireless earbuds"},{cn:"护肤精华",en:"Skincare serum"},
+  {cn:"香薰加湿器",en:"Aromatherapy diffuser"},{cn:"瑜伽垫",en:"Yoga mat"},{cn:"LED 台灯",en:"LED desk lamp"},
+  {cn:"运动鞋",en:"Sneakers"},{cn:"宠物窝",en:"Pet bed"},{cn:"厨房刀具套装",en:"Kitchen knife set"},
+  {cn:"手机壳",en:"Phone case"},{cn:"智能水杯",en:"Smart water bottle"},{cn:"香薰蜡烛",en:"Scented candle"}
+];
+
+const STYLES = [
+  {k:"ugc",      t:"UGC / 真实感",   d:"真人随手拍、手持质感"},
+  {k:"premium",  t:"高级 / 质感",    d:"电影感、慢节奏、高级光影"},
+  {k:"energetic",t:"快节奏 / 活力",  d:"快切、动感、潮流"},
+  {k:"asmr",     t:"ASMR / 感官",    d:"特写、声音驱动、解压"},
+  {k:"funny",    t:"搞笑 / 情景剧",  d:"幽默、贴近生活、有钩子"},
+  {k:"tutorial", t:"教程 / 演示",    d:"展示用法、分步骤"}
+];
+const STYLE_DESC = {
+  ugc:"authentic UGC handheld style, natural daylight, relatable real-person tone",
+  premium:"cinematic premium look, soft directional lighting, shallow depth of field, elegant slow camera moves",
+  energetic:"high-energy fast-paced edit, punchy quick cuts, vibrant colors, trending music vibe",
+  asmr:"ASMR sensory close-ups, crisp product sounds, slow satisfying motion, macro detail",
+  funny:"light comedic skit tone, relatable everyday scenario, exaggerated reactions",
+  tutorial:"clear step-by-step demonstration, clean framing, instructional pacing"
+};
+
+const LENGTHS = ["9s","15s","21s","30s"];
+const RATIOS  = ["9:16","1:1","16:9"];
+const COUNTS  = [1,2,3,5,8,10];
+
+/* ============ 中文 → 英文 翻译模块 ============ */
+/* 目标：写进脚本的任何文本都不得包含中文。
+   策略：① 常见电商/品类词典直译 ② 词典未命中的中文转拼音(可读且无中文字符) ③ 最终强制净化，剔除一切非 ASCII 字符。 */
+const CN_DICT = {
+  // 品类
+  "咖啡杯":"coffee mug","马克杯":"mug","无线耳机":"wireless earbuds","耳机":"earphones","蓝牙耳机":"bluetooth earbuds",
+  "护肤精华":"skincare serum","精华":"serum","面霜":"face cream","护肤":"skincare","面膜":"face mask","口红":"lipstick",
+  "香薰加湿器":"aromatherapy diffuser","加湿器":"humidifier","香薰":"aromatherapy","瑜伽垫":"yoga mat",
+  "台灯":"desk lamp","灯":"lamp","运动鞋":"sneakers","鞋":"shoes","宠物窝":"pet bed","宠物":"pet",
+  "刀具":"knife set","厨房刀具套装":"kitchen knife set","厨房":"kitchen","手机壳":"phone case","手机":"phone",
+  "水杯":"water bottle","保温杯":"insulated bottle","智能水杯":"smart water bottle","蜡烛":"candle","香薰蜡烛":"scented candle",
+  "背包":"backpack","包":"bag","手表":"watch","智能手表":"smartwatch","键盘":"keyboard","鼠标":"mouse",
+  "玩具":"toy","捏捏乐":"squishy fidget toy","解压玩具":"fidget toy","音箱":"speaker","充电宝":"power bank","数据线":"charging cable",
+  "毛巾":"towel","枕头":"pillow","抱枕":"cushion","床上用品":"bedding","收纳盒":"storage box","花瓶":"vase","摆件":"decor piece",
+  "服装":"clothing","裙子":"dress","T恤":"t-shirt","卫衣":"hoodie","帽子":"hat","袜子":"socks","围巾":"scarf",
+  "玩偶":"plush toy","公仔":"figure","保温杯":"thermos","茶具":"tea set","餐具":"tableware","锅":"cookware",
+  // 人群
+  "年轻上班族":"young office workers","上班族":"office workers","学生":"students","新手妈妈":"new moms","妈妈":"moms",
+  "宝妈":"moms","年轻人":"young people","女性":"women","男性":"men","男士":"men","女士":"women","情侣":"couples",
+  "送礼":"gift shoppers","礼物":"gift","健身人群":"fitness enthusiasts","白领":"white-collar workers","宠物主人":"pet owners",
+  "中年":"middle-aged users","老年人":"seniors","儿童":"kids","青少年":"teens","美妆爱好者":"beauty lovers",
+  // 卖点/常用词
+  "环保材质":"eco-friendly material","环保":"eco-friendly","材质":"material","便携":"portable","耐用":"durable",
+  "高级":"premium","质感":"texture","柔软":"soft","防水":"waterproof","轻便":"lightweight","大容量":"large capacity",
+  "快速充电":"fast charging","续航":"long battery life","静音":"quiet","无线":"wireless","智能":"smart",
+  "五折":"50% off","优惠":"discount","限时优惠":"limited-time offer","买一送一":"buy one get one free","包邮":"free shipping",
+  "留香":"long-lasting scent","24小时留香":"24-hour lasting scent","天然":"natural","纯棉":"pure cotton","不锈钢":"stainless steel",
+  "新品":"new arrival","热销":"best-seller","爆款":"viral best-seller","好评":"highly rated","正品":"authentic",
+  "特写":"close-up","真人":"real person","出镜":"on camera","节日":"festive","节日主题":"festive theme",
+  "必须":"must","展示":"show","产品":"product","手部":"hands","背景":"background","干净":"clean"
+};
+// 拼音兜底表（声母+韵母，简化覆盖；未命中的字逐字转拼音，确保无中文残留）
+const PINYIN = {"啊":"a","爱":"ai","安":"an","白":"bai","包":"bao","杯":"bei","本":"ben","便":"bian","表":"biao","茶":"cha","产":"chan","充":"chong","出":"chu","创":"chuang","大":"da","袋":"dai","灯":"deng","店":"dian","定":"ding","东":"dong","对":"dui","儿":"er","发":"fa","防":"fang","风":"feng","服":"fu","high":"high","给":"gei","工":"gong","购":"gou","光":"guang","贵":"gui","国":"guo","好":"hao","盒":"he","红":"hong","花":"hua","环":"huan","机":"ji","加":"jia","价":"jia","简":"jian","健":"jian","解":"jie","金":"jin","具":"ju","卷":"juan","康":"kang","売":"ke","壳":"ke","空":"kong","口":"kou","快":"kuai","款":"kuan","蜡":"la","乐":"le","礼":"li","料":"liao","量":"liang","亮":"liang","料":"liao","卖":"mai","美":"mei","面":"mian","明":"ming","摩":"mo","耐":"nai","男":"nan","女":"nv","暖":"nuan","派":"pai","品":"pin","瓶":"ping","气":"qi","钱":"qian","巧":"qiao","轻":"qing","情":"qing","球":"qiu","群":"qun","热":"re","人":"ren","软":"ruan","色":"se","上":"shang","少":"shao","身":"shen","声":"sheng","时":"shi","示":"shi","收":"shou","水":"shui","送":"song","素":"su","糖":"tang","套":"tao","特":"te","体":"ti","贴":"tie","图":"tu","外":"wai","碗":"wan","网":"wang","味":"wei","温":"wen","屋":"wu","物":"wu","系":"xi","鲜":"xian","香":"xiang","橡":"xiang","小":"xiao","新":"xin","型":"xing","熊":"xiong","学":"xue","颜":"yan","样":"yang","耀":"yao","业":"ye","衣":"yi","音":"yin","用":"yong","优":"you","鱼":"yu","元":"yuan","运":"yun","在":"zai","赞":"zan","展":"zhan","展":"zhan","真":"zhen","正":"zheng","质":"zhi","智":"zhi","中":"zhong","装":"zhuang","桌":"zhuo","自":"zi","族":"zu","组":"zu","嘴":"zui"};
+
+function cnToPinyin(str){
+  let out="";
+  for(const ch of str){
+    if(/[一-龥]/.test(ch)){ out += (PINYIN[ch]||"")+" "; }
+    else out += ch;
+  }
+  return out.replace(/\s+/g," ").trim();
+}
+// 把含中文的文本翻译成英文：先整体/分段查词典，再拼音兜底，最后净化非 ASCII
+function toEnglish(raw){
+  if(!raw) return "";
+  let s=raw.trim();
+  if(!/[一-龥]/.test(s)) { return asciiClean(s); } // 已是英文/无中文
+  // 1) 整句命中
+  if(CN_DICT[s]) return CN_DICT[s];
+  // 2) 词典分段替换（长词优先）
+  const keys=Object.keys(CN_DICT).sort((a,b)=>b.length-a.length);
+  for(const k of keys){ if(s.includes(k)) s=s.split(k).join(" "+CN_DICT[k]+" "); }
+  // 3) 剩余中文转拼音
+  if(/[一-龥]/.test(s)) s=cnToPinyin(s);
+  return asciiClean(s);
+}
+// 强制净化：移除任何非基本 ASCII 可见字符（含中文、全角符号、emoji），保留常用标点
+function asciiClean(s){
+  return s
+    .replace(/[一-龥]/g,"")            // 中文
+    .replace(/[　-〿＀-￯]/g,"") // 中日韩标点/全角
+    .replace(/[^\x09\x0A\x0D\x20-\x7E]/g,"")   // 其余非 ASCII（含 emoji）
+    .replace(/[ \t]{2,}/g," ")
+    .replace(/\s+([,.;:!?])/g,"$1")
+    .trim();
+}
+/* 优雅截断：不超过 max 字符，尽量在句末/词边界收尾，超出加省略号 */
+function clip(s, max){
+  s=(s||"").trim();
+  if(s.length<=max) return s;
+  let cut=s.slice(0,max);
+  // 优先在最后一个句末标点处断开
+  let p=Math.max(cut.lastIndexOf(". "),cut.lastIndexOf("; "),cut.lastIndexOf("! "),cut.lastIndexOf("? "));
+  if(p> max*0.5){ return cut.slice(0,p+1).trim(); }
+  // 否则在最后一个空格处断开，避免切断单词
+  let sp=cut.lastIndexOf(" ");
+  if(sp> max*0.5) cut=cut.slice(0,sp);
+  return cut.trim().replace(/[,;:\-]$/,"")+"...";
+}
+
+/* ============ State ============ */
+const state = { cat:"", style:"", len:"15s", ratio:"9:16", cnt:3 };
+
+/* ============ Build UI ============ */
+function chip(text){ const e=document.createElement('div'); e.className='chip'; e.textContent=text; return e; }
+
+const catChips=document.getElementById('catChips');
+CAT_PRESETS.forEach(c=>{
+  const e=chip(c.cn);          // 按钮显示中文
+  e.dataset.en=c.en;           // 取值用英文
+  e.onclick=()=>{ document.getElementById('cat').value=c.en; state.cat=c.en; markCatChips(); };
+  catChips.appendChild(e);
+});
+function markCatChips(){
+  const v=document.getElementById('cat').value.trim().toLowerCase();
+  [...catChips.children].forEach(ch=>ch.classList.toggle('sel', (ch.dataset.en||'').toLowerCase()===v));
+}
+document.getElementById('cat').addEventListener('input',e=>{ state.cat=e.target.value.trim(); markCatChips(); });
+
+const styleGrid=document.getElementById('styleGrid');
+STYLES.forEach(s=>{
+  const e=document.createElement('div'); e.className='opt';
+  e.innerHTML=`<div class="t">${s.t}</div><div class="d">${s.d}</div>`;
+  e.onclick=()=>{ const on=state.style===s.k; state.style=on?"":s.k; [...styleGrid.children].forEach(c=>c.classList.remove('sel')); if(!on)e.classList.add('sel'); };
+  styleGrid.appendChild(e);
+});
+
+function buildNum(elId, arr, key, fmt){
+  const box=document.getElementById(elId);
+  arr.forEach(v=>{
+    const e=document.createElement('div'); e.className='num'+(state[key]==v?' sel':''); e.textContent=fmt?fmt(v):v;
+    e.onclick=()=>{ state[key]=v; [...box.children].forEach(c=>c.classList.remove('sel')); e.classList.add('sel'); };
+    box.appendChild(e);
+  });
+}
+buildNum('lenPick',LENGTHS,'len');
+buildNum('ratioPick',RATIOS,'ratio');
+buildNum('cntPick',COUNTS,'cnt', v=>v+' 条');
+
+/* ============ Script Generation ============ */
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+function pick(arr,i){ return arr[i%arr.length]; }
+
+// Hook lines (variant openers)
+const HOOKS = [
+  p=>`POV: you finally found the ${p} that actually does the job.`,
+  p=>`Stop scrolling — this ${p} is the upgrade you didn't know you needed.`,
+  p=>`I tested 5 ${p}s so you don't have to. This one wins.`,
+  p=>`Why is nobody talking about this ${p}?`,
+  p=>`3 reasons this ${p} sold out last week 👇`,
+  p=>`If you use a ${p} every day, watch this first.`
+];
+const CTAS = [
+  "Tap the cart before it's gone.",
+  "Link in bio — limited stock today.",
+  "Add to cart and thank yourself later.",
+  "Order now, your future self will love it.",
+  "Don't miss the launch price — shop now."
+];
+
+// Approx scene count by length
+function sceneCount(len){ const n=parseInt(len); if(n<=9)return 3; if(n<=15)return 4; if(n<=21)return 5; return 6; }
+
+// Scene templates per style
+function buildScenes(prod, style, len, audience, usp){
+  const n=sceneCount(len);
+  const per=Math.max(2, Math.round(parseInt(len)/n));
+  const aud = audience? ` for ${audience}` : "";
+  const point = usp? usp : "its standout feature";
+  const lib = {
+    ugc:[
+      `Real person holds the ${prod} up to camera, casual room, natural light. They look slightly surprised.`,
+      `Quick handheld close-up of the ${prod} in everyday use${aud}.`,
+      `Reaction shot: genuine smile / nod showing ${point} works.`,
+      `Show the ${prod} from a second angle, highlight texture and detail.`,
+      `Before/after or "expectation vs reality" beat about the ${prod}.`,
+      `Person points to product, encouraging gesture toward the camera.`
+    ],
+    premium:[
+      `Slow dolly-in on the ${prod} on a clean surface, soft key light, dark elegant background.`,
+      `Macro rotate of the ${prod}, light glides across the surface revealing ${point}.`,
+      `Lifestyle wide: the ${prod} placed in a tasteful, aspirational setting${aud}.`,
+      `Hand gracefully interacts with the ${prod}, shallow depth of field.`,
+      `Hero beauty shot of the ${prod}, subtle light flare, premium mood.`,
+      `Logo / packaging reveal with refined motion and negative space.`
+    ],
+    energetic:[
+      `Snap zoom onto the ${prod} with a punchy sound effect, bright background.`,
+      `Rapid montage of the ${prod} in 3 quick uses${aud}.`,
+      `Fast text-pop overlay calling out ${point}.`,
+      `Whip-pan transition to a satisfying product action.`,
+      `Energetic reaction + thumbs up, vibrant color grade.`,
+      `Final freeze-frame on the ${prod} with bold CTA text.`
+    ],
+    asmr:[
+      `Extreme close-up of the ${prod}, crisp tactile sound as it's picked up.`,
+      `Slow satisfying motion: opening / using the ${prod}, isolated sound design.`,
+      `Macro detail of texture and material quality showing ${point}.`,
+      `Gentle hands move the ${prod}, soft ambient audio${aud}.`,
+      `Trickle / pour / click sensory moment with the ${prod}.`,
+      `Calm resting shot of the ${prod}, breathy fade-out.`
+    ],
+    funny:[
+      `Relatable "problem" moment without the ${prod} — mild frustration, comedic timing.`,
+      `Beat drop: the ${prod} appears as the hero solution.`,
+      `Exaggerated happy reaction once they try the ${prod}${aud}.`,
+      `Quick gag highlighting ${point} in an over-the-top way.`,
+      `Friend/partner reacts jealously to the ${prod}.`,
+      `Cheeky direct-to-camera line + CTA.`
+    ],
+    tutorial:[
+      `On-screen title: "How to use the ${prod} in ${n} steps". Product on table.`,
+      `Step 1 close-up demo of setting up / opening the ${prod}.`,
+      `Step 2 showing the ${prod} in action, emphasize ${point}${aud}.`,
+      `Step 3 result shot — the clear benefit/outcome.`,
+      `Tip overlay with a pro usage trick for the ${prod}.`,
+      `Recap shot + CTA to buy the ${prod}.`
+    ]
+  };
+  const scenes=lib[style]||lib.ugc;
+  let out=[]; let t=0;
+  for(let i=0;i<n;i++){ const dur=(i===n-1)?(parseInt(len)-t):per; out.push({i:i+1, start:t, dur:Math.max(1,dur), desc:scenes[i%scenes.length]}); t+=per; }
+  return out;
+}
+
+function buildScript(prod, idx){
+  const style = state.style || pick(["ugc","energetic","premium","asmr"], idx);
+  // 所有用户输入先翻译成英文，确保脚本无中文
+  const audience = toEnglish(document.getElementById('audience').value.trim());
+  const usp = toEnglish(document.getElementById('usp').value.trim());
+  const notes = toEnglish(document.getElementById('notes').value.trim());
+  const len=state.len, ratio=state.ratio;
+  const scenes=buildScenes(prod, style, len, audience, usp);
+  const hook=asciiClean(HOOKS[idx%HOOKS.length](prod));
+  const cta=asciiClean(CTAS[idx%CTAS.length]);
+  const styleDesc=STYLE_DESC[style];
+
+  // 时长拆成三段时间码用于 prompt
+  const total=parseInt(len);
+  const sc1=Math.max(2,Math.round(total*0.2));
+  const sc2=Math.max(2,Math.round(total*0.45));
+
+  const audPhrase = audience? ` Tailored for ${audience}.` : "";
+  const uspPhrase = usp? usp : "its standout features and everyday usage scenarios";
+  const moodMap={ugc:"authentic, relatable",premium:"elegant, aspirational",energetic:"high-energy, trendy",asmr:"calm, sensory and satisfying",funny:"playful and humorous",tutorial:"clear and instructional"};
+  const lightMap={
+    ugc:"Natural daylight, soft and even, true-to-life colors.",
+    premium:"Soft directional key light, dark elegant backdrop, gentle highlights along edges.",
+    energetic:"Bright punchy lighting with vibrant color grade.",
+    asmr:"Low-angle soft lighting to accentuate textures and sharp edges.",
+    funny:"Bright, friendly lighting with a casual everyday feel.",
+    tutorial:"Clean, evenly lit setup so every step reads clearly."
+  };
+  const camMap={
+    ugc:"Handheld, casual framing with quick reframes.",
+    premium:"Slow cinematic dolly-in and macro rotations with shallow depth of field.",
+    energetic:"Snap zooms and fast whip-pans, trendy block cut editing.",
+    asmr:"Trendy block cut editing; slow macro glides with shallow depth of field.",
+    funny:"Dynamic handheld with comedic timing on the cuts.",
+    tutorial:"Stable locked-off shots with clean push-ins on key steps."
+  };
+  const transMap={
+    ugc:"Quick straight cuts matched to the talking rhythm.",
+    premium:"Smooth dissolves and elegant match cuts.",
+    energetic:"Beat-synced hard cuts and swipe transitions.",
+    asmr:"Gentle cross dissolves synced to audio cues for scene cuts.",
+    funny:"Punchy cuts timed to the joke beats.",
+    tutorial:"Simple cuts between numbered steps."
+  };
+
+  // 分镜文本（Shot list）
+  const shots = scenes.map(s=>`Scene ${s.i} (${s.start}-${s.start+s.dur}s): ${s.desc}`).join("\n");
+
+  // 结构化脚本（参考模板格式）
+  const structured =
+`Hook: ${hook} Open with a striking 1-2s visual that puts the ${prod} front and center.
+Scene setup: Minimalist ${prod} showcase styled for TikTok-style product videos, ${moodMap[style]} visual tone; creator's hands optional.
+Subject and product focus: Position the ${prod} as the central focal point. Highlight ${uspPhrase} without overhyped or exaggerated claims.${audPhrase}
+Lighting: ${lightMap[style]}
+Camera movement: ${camMap[style]}
+Shot transition: ${transMap[style]}
+Audio / Voiceover: Natural, unforced English voiceover with tight, snappy pacing, delivered in an authentic creator tone.
+On-screen text: "${cta}"`;
+
+  // Voiceover / captions
+  const vo = [
+    `[0s] HOOK: "${hook}"`,
+    `[mid] VALUE: "Here's why people love this ${prod}${usp? ' - '+usp : ''}."`,
+    `[end] CTA: "${cta}"`
+  ].join("\n");
+
+  // Full production prompt（参考模板的成片 prompt）
+  const noteStr = notes? ` Additional requirements: ${notes}.` : "";
+  const prompt =
+`Produce a ${len} vertical ${ratio} TikTok-style product video for "${prod}". The video should feel ${moodMap[style]} and be optimized for short-form social product showcases. Open with a striking visual hook that clearly features the product within the first ${sc1} seconds, then progress through concise sequences: an eye-catching opening clip (0-${sc1}s), a close-up detail shot of the product (${sc1}-${sc2}s), and a final hero feature shot (${sc2}-${total}s). Visual style: ${styleDesc}.${audPhrase} Emphasize ${uspPhrase}. ${lightMap[style]} ${camMap[style]} ${transMap[style]} Maintain clean framing, realistic product rendering, and pacing tailored for short-form social media. Pair with an unforced, natural English voiceover in a genuine creator rhythm. Add brief English on-screen text only when it enhances viewer comprehension.${noteStr}`;
+
+  // Negative constraints（精简版，参考模板）
+  const negatives = "No pricing claims, no brand/trademark violations, no distorted hands or warped product shapes, no illegible or cluttered visuals, no irrelevant props, no unrealistic claims, no on-screen text in any language other than English.";
+
+  // 全部字段统一净化 + 截断，确保无中文且单条脚本不超过 2000 字符
+  const out_struct = clip(asciiClean(structured), 760);
+  const out_shots  = clip(asciiClean(shots), 430);
+  const out_vo     = clip(asciiClean(vo), 200);
+  const out_prompt = clip(asciiClean(prompt), 560);
+  const out_neg    = clip(asciiClean(negatives), 180);
+  return {
+    style, len, ratio,
+    shots: out_shots,
+    structured: out_struct,
+    vo: out_vo,
+    prompt: out_prompt,
+    negatives: out_neg
+  };
+}
+
+function escapeHtml(s){ return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+function generate(){
+  const rawProd = document.getElementById('cat').value.trim();
+  if(!rawProd){ alert("请先填写商品品类（第 1 步）。"); document.getElementById('cat').focus(); return; }
+  const prod = toEnglish(rawProd);   // 商品名翻译成英文，确保脚本无中文
+  if(!prod){ alert("无法识别该品类，请改用英文或更常见的中文品类名。"); return; }
+
+  // 风格英文名映射（用于英文脚本输出，与 UI 中文标签解耦）
+  const STYLE_EN = {ugc:"UGC / Authentic",premium:"Premium / Luxe",energetic:"Energetic / Fast",asmr:"ASMR / Sensory",funny:"Funny / Skit",tutorial:"How-to / Demo"};
+
+  const out=document.getElementById('out');
+  out.innerHTML="";
+  for(let i=0;i<state.cnt;i++){
+    const sc=buildScript(prod, i);
+    const styleName=(STYLES.find(s=>s.k===sc.style)||{t:sc.style}).t;   // 中文，用于 UI 徽章
+    const styleNameEn=STYLE_EN[sc.style]||sc.style;                     // 英文，用于复制内容
+    const box=document.createElement('div'); box.className='vbox';
+    const header=`=== JIMENG VIDEO SCRIPT: ${prod} (Variant ${i+1} - ${styleNameEn}) ===\nLength: ${sc.len} | Ratio: ${sc.ratio}`;
+    function compose(s){
+      return `${header}
+
+[SCRIPT TEMPLATE]
+${s.structured}
+
+[SHOT LIST]
+${s.shots}
+
+[VOICEOVER / CAPTIONS]
+${s.vo}
+
+[FULL PRODUCTION PROMPT]
+${s.prompt}
+
+[NEGATIVE CONSTRAINTS]
+${s.negatives}`;
+    }
+    // 总长兜底：单条脚本不超过 2000 字符，超出则优先收缩 prompt，再收缩 template
+    let copyText=compose(sc);
+    if(copyText.length>2000){
+      const over=copyText.length-2000;
+      sc.prompt=clip(sc.prompt, Math.max(200, sc.prompt.length-over-3));
+      copyText=compose(sc);
+    }
+    if(copyText.length>2000){
+      const over=copyText.length-2000;
+      sc.structured=clip(sc.structured, Math.max(200, sc.structured.length-over-3));
+      copyText=compose(sc);
+    }
+    box.innerHTML=`
+      <div class="vhead">
+        <div class="vt">变体 ${i+1} <span class="badge">${styleName}</span> <span style="color:var(--sub);font-weight:600;font-size:11px;">${sc.len} · ${sc.ratio} · ${copyText.length}/2000 字符</span></div>
+        <button class="cp">复制全部</button>
+      </div>
+      <div class="vlbl">Script Template</div>
+      <div class="vp">${escapeHtml(sc.structured)}</div>
+      <div class="vlbl">Shot List</div>
+      <div class="vp">${escapeHtml(sc.shots)}</div>
+      <div class="vlbl">Voiceover / Captions</div>
+      <div class="vp">${escapeHtml(sc.vo)}</div>
+      <div class="vlbl">Full Production Prompt</div>
+      <div class="vp mono">${escapeHtml(sc.prompt)}</div>
+      <div class="vlbl">Negative Constraints</div>
+      <div class="vp">${escapeHtml(sc.negatives)}</div>`;
+    const btn=box.querySelector('.cp');
+    btn.onclick=()=>{ navigator.clipboard.writeText(copyText).then(()=>{ btn.textContent="已复制 ✓"; btn.classList.add('done'); setTimeout(()=>{btn.textContent="复制全部"; btn.classList.remove('done');},1600); }); };
+    out.appendChild(box);
+  }
+  out.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function resetAll(){
+  document.getElementById('cat').value="";
+  document.getElementById('audience').value="";
+  document.getElementById('usp').value="";
+  document.getElementById('notes').value="";
+  state.cat=""; state.style=""; state.len="15s"; state.ratio="9:16"; state.cnt=3;
+  markCatChips();
+  [...styleGrid.children].forEach(c=>c.classList.remove('sel'));
+  ['lenPick','ratioPick','cntPick'].forEach(id=>{
+    const box=document.getElementById(id);
+    [...box.children].forEach((c,i)=>{
+      const def = id==='lenPick'?(c.textContent==='15s') : id==='ratioPick'?(c.textContent==='9:16') : (c.textContent.startsWith('3'));
+      c.classList.toggle('sel', def);
+    });
+  });
+  document.getElementById('out').innerHTML='<div class="out-empty">点击下方「生成脚本」后，结果将显示在这里。</div>';
+}
+</script>
+</body>
+</html>
